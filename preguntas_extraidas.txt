@@ -1,0 +1,54 @@
+Negocio | Abierta | ¿Cuál es el objetivo principal del sistema o producto a desarrollar?
+Negocio | Abierta | ¿Quiénes son los usuarios finales del sistema?
+Negocio | Abierta | ¿Qué problema concreto busca resolver esta solución?
+Negocio | Cerrada | ¿Existen sistemas actuales que realicen funciones similares?
+Negocio | Abierta | ¿Qué valor diferencial debe aportar este sistema respecto a la situación actual?
+Negocio | Abierta | ¿Cuáles son las reglas de negocio más importantes que el sistema debe respetar?
+Negocio | Abierta | ¿Quiénes son los principales stakeholders del proyecto?
+Negocio | Abierta | ¿Cómo se mide el éxito del proceso que se va a automatizar o mejorar?
+Negocio | Cerrada | ¿Hay alguna normativa legal o regulación del sector que el sistema deba cumplir?
+Negocio | Abierta | ¿Cuáles son los riesgos de negocio más preocupantes para el cliente?
+Negocio | Cerrada | ¿El sistema reemplaza un proceso manual o un sistema anterior?
+Funcional | Abierta | ¿Qué funcionalidades considera indispensables para la primera versión?
+Funcional | Cerrada | ¿El sistema debe gestionar usuarios con distintos roles o permisos?
+Funcional | Abierta | ¿Qué reportes o consultas necesita generar el sistema?
+Funcional | Cerrada | ¿El sistema requiere flujos de aprobación o notificaciones automáticas?
+Funcional | Abierta | ¿Qué acciones puede realizar cada tipo de usuario dentro del sistema?
+Funcional | Cerrada | ¿El sistema necesita gestionar archivos o documentos adjuntos?
+Funcional | Cerrada | ¿Debe haber un módulo de búsqueda o filtrado avanzado de datos?
+Funcional | Selección múltiple | ¿El sistema debe enviar correos electrónicos o notificaciones push?
+Funcional | Cerrada | ¿Se requiere un historial o auditoría de cambios realizados en el sistema?
+Funcional | Abierta | ¿Qué datos maestros necesita gestionar el sistema (catálogos, configuraciones)?
+Funcional | Cerrada | ¿El sistema necesita importar o exportar datos en algún formato específico?
+No funcional | Abierta | ¿Cuántos usuarios simultáneos se esperan en producción?
+No funcional | Abierta | ¿Hay requerimientos de disponibilidad (SLA, horarios de operación)?
+No funcional | Abierta | ¿Existen normas de seguridad o privacidad de datos que deban cumplirse?
+No funcional | Abierta | ¿Cuál es el tiempo de respuesta máximo aceptable para las operaciones críticas?
+No funcional | Abierta | ¿Qué nivel de escalabilidad se espera del sistema a futuro?
+No funcional | Cerrada | ¿El sistema debe ser accesible para personas con discapacidad (WCAG)?
+No funcional | Abierta | ¿Cuáles son los requisitos de backup y recuperación ante desastres?
+No funcional | Cerrada | ¿Hay requerimientos de rendimiento para consultas o reportes pesados?
+No funcional | Selección múltiple | ¿El sistema necesita soporte multilenguaje o multi-moneda?
+No funcional | Abierta | ¿Qué nivel de logging o monitoreo se requiere en producción?
+No funcional | Cerrada | ¿Se requiere auditoría de acceso y acciones de usuarios en el sistema?
+Restricción | Abierta | ¿Cuál es el presupuesto estimado disponible para el proyecto?
+Restricción | Cerrada | ¿Existe una fecha límite de entrega definida?
+Restricción | Abierta | ¿Hay tecnologías o plataformas obligatorias a utilizar?
+Restricción | Abierta | ¿El equipo de desarrollo tiene restricciones de tamaño o disponibilidad?
+Restricción | Abierta | ¿Existen restricciones de infraestructura actual (servidores, cloud)?
+Restricción | Cerrada | ¿El sistema debe funcionar en ambientes offline o con conectividad limitada?
+Restricción | Cerrada | ¿Hay restricciones sobre manejo de datos personales (GDPR, Ley de datos)?
+Restricción | Abierta | ¿Se requiere compatibilidad con versiones específicas de software o hardware?
+Restricción | Cerrada | ¿Existen procesos de aprobación internos que puedan afectar los plazos?
+Restricción | Abierta | ¿Hay dependencias con terceros que puedan generar retrasos?
+Interfaz | Cerrada | ¿El sistema debe integrarse con otros sistemas externos o APIs?
+Interfaz | Selección múltiple | ¿Qué dispositivos usarán los usuarios (PC, tablet, móvil)?
+Interfaz | Cerrada | ¿El cliente tiene guías de identidad visual o branding a respetar?
+Interfaz | Cerrada | ¿Hay algún ERP, CRM o base de datos existente con la que deba integrarse?
+Interfaz | Cerrada | ¿El sistema debe exponer una API para que terceros consuman sus datos?
+Interfaz | Selección múltiple | ¿Qué tipo de autenticación se requiere (usuario/contraseña, SSO, OAuth)?
+Interfaz | Abierta | ¿Cómo se espera que sea la curva de aprendizaje de los usuarios finales?
+Interfaz | Abierta | ¿El sistema debe usar algún protocolo específico (REST, SOAP, WebSocket)?
+Interfaz | Cerrada | ¿Hay requisitos de impresión o generación de reportes en PDF u otros formatos?
+Interfaz | Cerrada | ¿Los usuarios requieren dashboard con métricas o indicadores visuales?
+Interfaz | Cerrada | ¿Existe algún servicio de pagos u otros servicios cloud que deban integrarse?

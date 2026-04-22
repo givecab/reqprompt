@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReqPrompt</title>
+<link rel="icon" type="image/png" href="icono.png">
+<style>
+  :root {
+    --bg:#f7f7f5;--surface:#ffffff;--border:rgba(0,0,0,0.1);--border-md:rgba(0,0,0,0.18);
+    --text:#1a1a18;--text2:#5a5a57;--text3:#9a9a96;
+    --brand:#204983;--brand-weak:#E8EEF8;--accent:#204983;
+    --green:#1D9E75;--green-bg:#E1F5EE;
+    --blue-bg:#E6F1FB;--blue-text:#0C447C;
+    --purple-bg:#EEEDFE;--purple-text:#3C3489;
+    --amber-bg:#FAEEDA;--amber-text:#633806;
+    --teal-bg:#E1F5EE;--teal-text:#085041;
+    --coral-bg:#FAECE7;--coral-text:#712B13;
+    --radius:8px;--radius-lg:12px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#1a1a18;--surface:#242422;--border:rgba(255,255,255,0.1);--border-md:rgba(255,255,255,0.18);
+      --text:#f0f0ec;--text2:#a0a09c;--text3:#606060;
+      --brand:#8FB2E7;--brand-weak:#223754;--accent:#8FB2E7;
+      --green-bg:#04342C;--blue-bg:#042C53;--blue-text:#B5D4F4;
+      --purple-bg:#26215C;--purple-text:#CECBF6;--amber-bg:#412402;--amber-text:#FAC775;
+      --teal-bg:#04342C;--teal-text:#9FE1CB;--coral-bg:#4A1B0C;--coral-text:#F5C4B3;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  .app{display:flex;flex:1;overflow:hidden}
+  .sidebar{width:220px;min-width:220px;background:var(--surface);border-right:0.5px solid var(--border);display:flex;flex-direction:column;padding:12px 0}
+  .main{flex:1;overflow-y:auto;padding:28px 32px}
+  .logo{display:flex;align-items:center;gap:10px;padding:6px 16px 14px;border-bottom:0.5px solid var(--border);margin-bottom:8px}
+  .logo img{width:30%;height:auto;object-fit:contain;flex-shrink:0}
+  .logo .brand-name{font-size:15px;font-weight:700;color:var(--brand);line-height:1}
+  .logo .brand-version{font-size:11px;font-weight:500;color:var(--text2);line-height:1.2;margin-top:2px}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:var(--text2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background .12s}
+  .nav-item:hover{background:var(--brand-weak);color:var(--brand)}
+  .nav-item.active{background:var(--brand-weak);color:var(--brand);font-weight:600}
+  .nav-icon{width:16px;height:16px;opacity:.6;flex-shrink:0}
+  .nav-item.active .nav-icon{opacity:1}
+  .nav-section{font-size:11px;color:var(--text3);padding:12px 16px 4px;text-transform:uppercase;letter-spacing:.05em}
+  .active-proj-pill{margin:8px 10px;padding:8px 10px;background:var(--brand-weak);border-radius:var(--radius);border:0.5px solid color-mix(in srgb, var(--brand) 45%, transparent)}
+  .active-proj-pill .label{font-size:10px;color:var(--brand);text-transform:uppercase;letter-spacing:.04em}
+  .active-proj-pill .name{font-size:12px;font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  button{font-family:inherit;font-size:13px;cursor:pointer;border-radius:var(--radius);padding:7px 14px;border:0.5px solid var(--border-md);background:transparent;color:var(--text);transition:background .13s,opacity .13s}
+  button:hover{background:var(--bg)}
+  button:active{transform:scale(.98)}
+  button.primary{background:var(--accent);color:var(--surface);border-color:transparent}
+  button.primary:hover{opacity:.82}
+  button.danger{color:#A32D2D;border-color:rgba(163,45,45,.3)}
+  button.danger:hover{background:#FCEBEB}
+  button.green{background:var(--brand);color:white;border-color:transparent}
+  button.green:hover{opacity:.85}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  input,select,textarea{font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);padding:7px 10px;width:100%;outline:none;transition:border-color .13s}
+  input:focus,select:focus,textarea:focus{border-color:var(--text)}
+  textarea{resize:vertical;min-height:72px;line-height:1.5}
+  label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
+  .card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:12px}
+  .section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+  .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+  .badge-Funcional{background:var(--blue-bg);color:var(--blue-text)}
+  .badge-No-funcional{background:var(--purple-bg);color:var(--purple-text)}
+  .badge-Negocio{background:var(--amber-bg);color:var(--amber-text)}
+  .badge-Restricción{background:var(--teal-bg);color:var(--teal-text)}
+  .badge-Interfaz{background:var(--coral-bg);color:var(--coral-text)}
+  .tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{font-size:12px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border-md);cursor:pointer;background:transparent;color:var(--text2)}
+  .tab.active{background:var(--accent);color:var(--surface);border-color:transparent}
+  .progress-wrap{margin-bottom:20px}
+  .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px}
+  .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--brand);border-radius:2px;transition:width .3s}
+  .q-block{border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;background:var(--surface);transition:border-color .2s}
+  .q-block.answered{border-color:var(--green)}
+  .q-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .q-text{font-size:14px;font-weight:500;flex:1;line-height:1.4}
+  .q-meta{font-size:11px;color:var(--text3);margin-bottom:8px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .metric{background:var(--bg);border-radius:var(--radius);padding:12px 14px}
+  .metric .m-label{font-size:11px;color:var(--text3);margin-bottom:3px}
+  .metric .m-val{font-size:22px;font-weight:500}
+  .proj-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:background .12s}
+  .proj-item:hover{background:var(--bg)}
+  .proj-item.sel{border-color:var(--brand);background:var(--brand-weak)}
+  #toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:var(--surface);padding:10px 18px;border-radius:var(--radius);font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:999}
+  #toast.show{opacity:1}
+  .page{display:none}
+  .page.active{display:block}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+  .topbar h1{font-size:20px;font-weight:600}
+  .info-box{background:var(--blue-bg);border:0.5px solid rgba(55,138,221,.25);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px}
+  .info-box p{font-size:13px;color:var(--blue-text);margin-bottom:6px;line-height:1.6}
+  .info-box strong{font-weight:600}
+  .info-box ol{padding-left:18px;margin-top:6px}
+  .info-box li{font-size:13px;color:var(--blue-text);margin-bottom:4px}
+  .info-box pre{background:rgba(0,0,0,0.06);border-radius:var(--radius);padding:10px 12px;font-size:11px;font-family:monospace;margin-top:8px;overflow-x:auto;color:var(--blue-text);white-space:pre-wrap}
+  .prompt-area{width:100%;font-family:monospace;font-size:12px;line-height:1.6;border:0.5px solid var(--border-md);border-radius:var(--radius-lg);padding:16px;background:var(--bg);color:var(--text);resize:vertical;min-height:420px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="icono.png" alt="ReqPrompt logo">
+      <div>
+        <div class="brand-name">
+          <h1 style="color: #000">Req</h1><h1>Prompt</h1>
+        </div>
+      </div>
+    </div>
+    <div id="active-pill" style="display:none" class="active-proj-pill">
+      <div class="label">Proyecto activo</div>
+      <div class="name" id="pill-name">—</div>
+    </div>
+    <div class="nav-section">Navegación</div>
+    <button class="nav-item active" onclick="nav('proyectos',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+      Proyectos
+    </button>
+    <button class="nav-item" onclick="nav('entrevista',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h10"/></svg>
+      Entrevista
+    </button>
+    <button class="nav-item" onclick="nav('prompt',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 7h6M5 10h4"/></svg>
+      Generar Prompt
+    </button>
+    <button class="nav-item" onclick="nav('banco',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8l2 3H2l2-3zM2 5v9h12V5"/><path d="M6 9h4"/></svg>
+      Banco de preguntas
+    </button>
+    <div style="flex:1"></div>
+    <button class="nav-item" onclick="nav('config',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4"/></svg>
+      Configuración
+    </button>
+  </aside>
+
+  <main class="main">
+    <!-- PROYECTOS -->
+    <div id="page-proyectos" class="page active">
+      <div class="topbar"><h1>Proyectos</h1><button class="primary" onclick="newProjectForm()">+ Nuevo proyecto</button></div>
+      <div style="margin-bottom:12px;padding:0 12px"><input type="text" id="proj-search" placeholder="🔍 Buscar proyecto..." style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px" onkeyup="renderProjects()"></div>
+      <div class="grid2" style="align-items:start">
+        <div id="proj-list-col"><div id="proj-list"></div></div>
+        <div id="proj-detail-col"></div>
+      </div>
+    </div>
+
+    <!-- ENTREVISTA -->
+    <div id="page-entrevista" class="page">
+      <div class="topbar"><h1 id="int-title">Entrevista</h1></div>
+      <div id="interview-body"></div>
+    </div>
+
+    <!-- GENERAR PROMPT -->
+    <div id="page-prompt" class="page">
+      <div class="topbar">
+        <h1>Generar Prompt para LLM</h1>
+        <div style="display:flex;gap:8px">
+          <button id="btn-gen" class="green" onclick="generatePrompt()">Generar prompt</button>
+          <button id="btn-copy-prompt" style="display:none" onclick="copyPrompt()">Copiar prompt</button>
+          <button id="btn-save-prompt" style="display:none" onclick="savePromptTxt()">Guardar .txt</button>
+        </div>
+      </div>
+      <div id="prompt-status" style="font-size:13px;color:var(--text2);margin-bottom:12px"></div>
+      <div id="prompt-hint" style="display:none" class="info-box" style="margin-bottom:16px">
+        <p><strong>¿Cómo usar este prompt?</strong></p>
+        <ol>
+          <li>Copiá el prompt con el botón <strong>"Copiar prompt"</strong></li>
+          <li>Pegalo en cualquier LLM: <strong>ChatGPT, Claude, Gemini</strong>, etc.</li>
+          <li>El modelo te devuelve la documentación completa lista para arrancar los casos de uso</li>
+        </ol>
+      </div>
+      <textarea id="prompt-output" class="prompt-area" style="display:none" readonly placeholder="El prompt aparecerá aquí..."></textarea>
+    </div>
+
+    <!-- BANCO -->
+    <div id="page-banco" class="page">
+      <div class="topbar">
+        <h1>Banco de preguntas</h1>
+        <div style="display:flex;gap:8px">
+          <button class="primary" onclick="showAddQ()">+ Agregar pregunta</button>
+          <button onclick="document.getElementById('import-file').click()">Importar .json</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importQuestions(this)">
+        </div>
+      </div>
+      <div id="add-q-form" style="display:none" class="card"></div>
+      <div style="margin-bottom:12px"><input type="text" id="bank-search" placeholder="🔍 Buscar pregunta..." style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px" onkeyup="renderBank()"></div>
+      <div class="tab-row" id="bank-tabs">
+        <button class="tab active" onclick="filterBank(this,'todas')">Todas</button>
+        <button class="tab" onclick="filterBank(this,'Funcional')">Funcional</button>
+        <button class="tab" onclick="filterBank(this,'No funcional')">No funcional</button>
+        <button class="tab" onclick="filterBank(this,'Negocio')">Negocio</button>
+        <button class="tab" onclick="filterBank(this,'Restricción')">Restricción</button>
+        <button class="tab" onclick="filterBank(this,'Interfaz')">Interfaz</button>
+      </div>
+      <div id="bank-list"></div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="page-config" class="page">
+      <div class="topbar"><h1>Configuración</h1></div>
+      <div class="info-box" style="margin-bottom:16px">
+        <p><strong>Formato para importar preguntas (.json)</strong></p>
+        <p>Podés importar preguntas masivamente desde el Banco de preguntas usando un archivo <strong>.json</strong> con este formato:</p>
+        <pre>[
+  { "category": "Funcional",     "text": "¿...?", "type": "Abierta" },
+  { "category": "No funcional",  "text": "¿...?", "type": "Cerrada" },
+  { "category": "Negocio",       "text": "¿...?", "type": "Selección múltiple" },
+  { "category": "Restricción",   "text": "¿...?", "type": "Abierta" },
+  { "category": "Interfaz",      "text": "¿...?", "type": "Cerrada" }
+]</pre>
+        <p style="margin-top:8px"><strong>Categorías válidas:</strong> Funcional · No funcional · Negocio · Restricción · Interfaz</p>
+        <p><strong>Tipos válidos:</strong> Abierta · Cerrada · Selección múltiple</p>
+      </div>
+      <div class="card" style="max-width:540px">
+        <p class="section-title">Base de datos</p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">SQLite guardada en <code style="font-size:12px;background:var(--bg);padding:2px 6px;border-radius:4px">~/.req_elicit/data.db</code></p>
+        <button onclick="pywebview.api.open_data_folder()">Abrir carpeta de datos</button>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="toast"></div>
+
+<script>
+const CATS = ['Funcional','No funcional','Negocio','Restricción','Interfaz'];
+const PROJECT_TYPES = ['Software a medida','Sistema web','App móvil','Integración de sistemas','Consultoría','Otro'];
+
+let projects = [];
+let questions = [];
+let activeProject = null;
+let bankFilter = 'todas';
+let promptRawText = '';
+let intCat = 'todas';
+let appBootstrapped = false;
+
+// ── init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load', initApp);
+window.addEventListener('pywebviewready', initApp);
+
+async function waitForPywebviewApi(timeoutMs = 8000) {
+  const start = Date.now();
+  while (!(window.pywebview && pywebview.api)) {
+    if (Date.now() - start > timeoutMs) {
+      throw new Error('pywebview.api no esta disponible');
+    }
+    await new Promise(r => setTimeout(r, 50));
+  }
+}
+
+async function initApp() {
+  if (appBootstrapped) return;
+  try {
+    await waitForPywebviewApi();
+    await refreshData();
+    appBootstrapped = true;
+  } catch (e) {
+    const list = document.getElementById('proj-list');
+    if (list) {
+      list.innerHTML = '<p style="font-size:13px;color:var(--red);padding:8px 0">No se pudieron cargar los datos guardados. Reiniciá la app.</p>';
+    }
+    console.error(e);
+  }
+}
+
+async function refreshData() {
+  const [pRaw, qRaw] = await Promise.all([
+    pywebview.api.get_projects(),
+    pywebview.api.get_questions(),
+  ]);
+  projects = JSON.parse(pRaw);
+  questions = JSON.parse(qRaw);
+  renderProjects();
+}
+
+// ── nav ───────────────────────────────────────────────────────────────────────
+function nav(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('active');
+  if (page==='entrevista') renderInterview();
+  if (page==='banco') renderBank();
+  if (page==='prompt') renderPromptPage();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function updatePill() {
+  const pill = document.getElementById('active-pill');
+  const p = projects.find(x => x.id === activeProject);
+  if (p) { pill.style.display=''; document.getElementById('pill-name').textContent=p.name; }
+  else pill.style.display='none';
+}
+
+// ── projects ──────────────────────────────────────────────────────────────────
+function renderProjects() {
+  const list = document.getElementById('proj-list');
+  const searchTerm = (document.getElementById('proj-search')?.value || '').toLowerCase();
+  let filtered = projects;
+  if (searchTerm) {
+    filtered = projects.filter(p=>(p.name+' '+p.client).toLowerCase().includes(searchTerm));
+  }
+  if (!filtered.length) {
+    list.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:8px 0">Sin proyectos. Creá uno para empezar.</p>';
+    return;
+  }
+  list.innerHTML = filtered.map(p => {
+    const qs = questions.filter(q => q.base || (p.extraQids||[]).includes(q.id));
+    const ans = Object.values(p.answers||{}).filter(v=>v&&v.trim()).length;
+    return `<div class="proj-item ${activeProject===p.id?'sel':''}" onclick="selectProject(${p.id})">
+      <div style="flex:1;min-width:0">
+        <p style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</p>
+        <p style="font-size:12px;color:var(--text2)">${p.client} · ${p.type}</p>
+      </div>
+      <span style="font-size:12px;color:var(--text3);flex-shrink:0;margin-left:8px">${ans}/${qs.length}</span>
+    </div>`;
+  }).join('');
+  if (activeProject) renderProjectDetail();
+}
+
+function selectProject(id) {
+  activeProject = id;
+  updatePill();
+  renderProjects();
+}
+
+function renderProjectDetail() {
+  const p = projects.find(x => x.id === activeProject);
+  if (!p) return;
+  const qs = questions.filter(q => q.base || (p.extraQids||[]).includes(q.id));
+  const ans = Object.values(p.answers||{}).filter(v=>v&&v.trim()).length;
+  const pct = qs.length ? Math.round(ans/qs.length*100) : 0;
+  document.getElementById('proj-detail-col').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div><p style="font-size:17px;font-weight:600">${p.name}</p><p style="font-size:13px;color:var(--text2);margin-top:2px">${p.client}</p></div>
+        <button class="danger" style="font-size:12px;padding:4px 10px" onclick="deleteProject(${p.id})">Eliminar</button>
+      </div>
+      <div class="grid2" style="margin-bottom:14px">
+        <div class="metric"><div class="m-label">Tipo</div><div style="font-size:13px;font-weight:500;margin-top:4px">${p.type}</div></div>
+        <div class="metric"><div class="m-label">Progreso</div><div class="m-val">${pct}%</div></div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <p style="font-size:11px;color:var(--text3);margin-top:4px">${ans} de ${qs.length} preguntas respondidas</p>
+      </div>
+      ${p.doc_date ? `<p style="font-size:12px;color:var(--green);margin-bottom:10px">Prompt generado: ${p.doc_date}</p>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="primary" onclick="navBtn('entrevista')">Ir a entrevista</button>
+        <button onclick="showExtraQ(${p.id})">+ Preguntas extra</button>
+        <button onclick="navBtn('prompt')">Generar Prompt</button>
+      </div>
+    </div>`;
+}
+
+function navBtn(page) {
+  const btns = document.querySelectorAll('.nav-item');
+  const map = {proyectos:0, entrevista:1, prompt:2, banco:3, config:4};
+  nav(page, btns[map[page]]);
+}
+
+function newProjectForm() {
+  document.getElementById('proj-detail-col').innerHTML = `
+    <div class="card">
+      <p style="font-size:15px;font-weight:600;margin-bottom:14px">Nuevo proyecto</p>
+      <div class="field"><label>Nombre del proyecto</label><input id="np-name" placeholder="Ej: Sistema de inventario ABC"></div>
+      <div class="grid2">
+        <div class="field"><label>Cliente / Empresa</label><input id="np-client" placeholder="Nombre del cliente"></div>
+        <div class="field"><label>Tipo de proyecto</label><select id="np-type">${PROJECT_TYPES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label>Notas iniciales (opcional)</label><textarea id="np-notes" placeholder="Contexto previo..."></textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="primary" onclick="saveProject()">Crear proyecto</button>
+        <button onclick="renderProjects()">Cancelar</button>
+      </div>
+    </div>`;
+}
+
+async function saveProject() {
+  const name = document.getElementById('np-name').value.trim();
+  const client = document.getElementById('np-client').value.trim();
+  if (!name||!client) { toast('Completá nombre y cliente.'); return; }
+  const raw = await pywebview.api.create_project(name, client, document.getElementById('np-type').value, document.getElementById('np-notes').value.trim());
+  const p = JSON.parse(raw);
+  projects.unshift(p);
+  activeProject = p.id;
+  updatePill();
+  renderProjects();
+  toast('Proyecto creado.');
+}
+
+async function deleteProject(id) {
+  if (!confirm('¿Eliminar este proyecto y todas sus respuestas?')) return;
+  await pywebview.api.delete_project(id);
+  projects = projects.filter(p=>p.id!==id);
+  if (activeProject===id) { activeProject=null; updatePill(); }
+  document.getElementById('proj-detail-col').innerHTML='';
+  renderProjects();
+  toast('Proyecto eliminado.');
+}
+
+function showExtraQ(pid) {
+  const p = projects.find(x=>x.id===pid);
+  const extras = questions.filter(q=>!q.base);
+  const searchTerm = (document.getElementById('extra-search')?.value || '').toLowerCase();
+  let filtered = extras;
+  if (searchTerm) {
+    filtered = extras.filter(q=>q.text.toLowerCase().includes(searchTerm));
+  }
+  const allSelected = filtered.length > 0 && filtered.every(q=>(p.extraQids||[]).includes(q.id));
+  let content = `
+    <div class="card">
+      <p style="font-size:15px;font-weight:600;margin-bottom:4px">Preguntas adicionales</p>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Elegí preguntas variables para esta entrevista.</p>`;
+  
+  if (extras.length) {
+    content += `
+      <div style="margin-bottom:12px"><input type="text" id="extra-search" placeholder="🔍 Buscar pregunta..." style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px" onkeyup="showExtraQ(${pid})"></div>
+      <button style="margin-bottom:12px;font-size:12px;padding:4px 8px" onclick="selectAllExtra(${pid},${!allSelected})">☑ ${allSelected?'Deseleccionar todo':'Seleccionar todo'}</button>
+      ${filtered.map(q=>`
+        <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;cursor:pointer;font-size:13px;color:var(--text)">
+          <input type="checkbox" ${(p.extraQids||[]).includes(q.id)?'checked':''} onchange="toggleExtra(${pid},${q.id},this.checked)" style="width:auto;margin-top:2px;flex-shrink:0">
+          <span>${q.text} <span class="badge badge-${q.cat.replace(' ','-')}">${q.cat}</span></span>
+        </label>`).join('')}`;
+  } else {
+    content += '<p style="font-size:13px;color:var(--text3)">No hay preguntas variables. Agregá desde el Banco de preguntas.</p>';
+  }
+  content += `<div style="margin-top:14px"><button onclick="saveExtraQ(${pid})">Listo</button></div>
+    </div>`;
+  
+  document.getElementById('proj-detail-col').innerHTML = content;
+}
+
+let _pendingExtras = {};
+function toggleExtra(pid, qid, checked) {
+  if (!_pendingExtras[pid]) {
+    const p = projects.find(x=>x.id===pid);
+    _pendingExtras[pid] = new Set(p.extraQids||[]);
+  }
+  if (checked) _pendingExtras[pid].add(qid);
+  else _pendingExtras[pid].delete(qid);
+}
+
+function selectAllExtra(pid, selectAll) {
+  const extras = questions.filter(q=>!q.base);
+  const searchTerm = (document.getElementById('extra-search')?.value || '').toLowerCase();
+  let filtered = extras;
+  if (searchTerm) {
+    filtered = extras.filter(q=>q.text.toLowerCase().includes(searchTerm));
+  }
+  if (!_pendingExtras[pid]) {
+    const p = projects.find(x=>x.id===pid);
+    _pendingExtras[pid] = new Set(p.extraQids||[]);
+  }
+  filtered.forEach(q => {
+    if (selectAll) _pendingExtras[pid].add(q.id);
+    else _pendingExtras[pid].delete(q.id);
+  });
+  showExtraQ(pid);
+}
+
+async function saveExtraQ(pid) {
+  const qids = _pendingExtras[pid] ? [..._pendingExtras[pid]] : (projects.find(x=>x.id===pid)||{}).extraQids||[];
+  await pywebview.api.set_extra_questions(pid, JSON.stringify(qids));
+  const p = projects.find(x=>x.id===pid);
+  if (p) p.extraQids = qids;
+  delete _pendingExtras[pid];
+  selectProject(pid);
+  toast('Preguntas guardadas.');
+}
+
+// ── entrevista ────────────────────────────────────────────────────────────────
+function renderInterview() {
+  const body = document.getElementById('interview-body');
+  const title = document.getElementById('int-title');
+  const p = projects.find(x=>x.id===activeProject);
+  if (!p) { body.innerHTML='<p style="color:var(--text2)">Seleccioná un proyecto activo desde Proyectos.</p>'; title.textContent='Entrevista'; return; }
+  title.textContent = p.name;
+  const qs = questions.filter(q=>q.base||(p.extraQids||[]).includes(q.id));
+  const answered = qs.filter(q=>(p.answers||{})[q.id]?.trim()).length;
+  const pct = qs.length ? Math.round(answered/qs.length*100) : 0;
+  const filtered = intCat==='todas' ? qs : qs.filter(q=>q.cat===intCat);
+  const catBtns = ['todas',...CATS].map(c=>`<button class="tab ${intCat===c?'active':''}" onclick="setIntCat('${c}')">${c==='todas'?'Todas':c}</button>`).join('');
+  body.innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-label"><span>${answered} de ${qs.length} respondidas</span><span id="pct-label">${pct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="int-progress" style="width:${pct}%"></div></div>
+    </div>
+    <div class="tab-row">${catBtns}</div>
+    <div id="q-list">
+      ${filtered.map(q=>{
+        const ans = (p.answers||{})[q.id]||'';
+        return `<div class="q-block ${ans.trim()?'answered':''}" id="qb-${q.id}">
+          <div class="q-header"><p class="q-text">${q.text}</p><span class="badge badge-${q.cat.replace(' ','-')}">${q.cat}</span></div>
+          <p class="q-meta">${q.type} · ${q.base?'Base':'Variable'}</p>
+          <textarea placeholder="Anotá la respuesta del cliente..." onchange="saveAnswer(${p.id},${q.id},this.value)">${ans}</textarea>
+        </div>`;
+      }).join('')}
+      ${!filtered.length?'<p style="color:var(--text3);font-size:13px">Sin preguntas en esta categoría.</p>':''}
+    </div>`;
+}
+
+function setIntCat(cat) { intCat=cat; renderInterview(); }
+
+async function saveAnswer(pid, qid, val) {
+  const p = projects.find(x=>x.id===pid);
+  if (!p) return;
+  if (!p.answers) p.answers={};
+  p.answers[qid]=val;
+  await pywebview.api.save_answer(pid, qid, val);
+  const block = document.getElementById('qb-'+qid);
+  if (block) block.classList.toggle('answered', val.trim().length>0);
+  const qs = questions.filter(q=>q.base||(p.extraQids||[]).includes(q.id));
+  const answered = qs.filter(q=>(p.answers||{})[q.id]?.trim()).length;
+  const pct = qs.length ? Math.round(answered/qs.length*100) : 0;
+  const fill = document.getElementById('int-progress');
+  const lbl = document.getElementById('pct-label');
+  if (fill) fill.style.width=pct+'%';
+  if (lbl) lbl.textContent=pct+'%';
+}
+
+// ── prompt ────────────────────────────────────────────────────────────────────
+async function renderPromptPage() {
+  const status = document.getElementById('prompt-status');
+  const output = document.getElementById('prompt-output');
+  const hint   = document.getElementById('prompt-hint');
+  const p = projects.find(x => x.id === activeProject);
+  if (!p) {
+    status.textContent = 'Seleccioná un proyecto activo para generar el prompt.';
+    output.style.display = 'none';
+    hint.style.display = 'none';
+    ['btn-copy-prompt','btn-save-prompt'].forEach(id => document.getElementById(id).style.display = 'none');
+    return;
+  }
+  status.textContent = `Proyecto: ${p.name} · ${p.client}`;
+  const raw = await pywebview.api.get_generated_doc(p.id);
+  const {doc, date} = JSON.parse(raw);
+  if (doc) {
+    promptRawText = doc;
+    output.value = doc;
+    output.style.display = '';
+    hint.style.display = '';
+    ['btn-copy-prompt','btn-save-prompt'].forEach(id => document.getElementById(id).style.display = '');
+    status.textContent = `Proyecto: ${p.name} · ${p.client} · Generado: ${date}`;
+  } else {
+    output.style.display = 'none';
+    hint.style.display = 'none';
+    ['btn-copy-prompt','btn-save-prompt'].forEach(id => document.getElementById(id).style.display = 'none');
+  }
+}
+
+async function generatePrompt() {
+  const p = projects.find(x => x.id === activeProject);
+  if (!p) { toast('Seleccioná un proyecto activo.'); return; }
+  const btn = document.getElementById('btn-gen');
+  btn.disabled = true;
+  btn.textContent = 'Generando...';
+  const raw = await pywebview.api.generate_prompt(p.id);
+  const result = JSON.parse(raw);
+  btn.disabled = false;
+  btn.textContent = 'Regenerar prompt';
+  if (result.error) { toast('Error: ' + result.error); return; }
+  promptRawText = result.prompt;
+  const output = document.getElementById('prompt-output');
+  output.value = result.prompt;
+  output.style.display = '';
+  document.getElementById('prompt-hint').style.display = '';
+  ['btn-copy-prompt','btn-save-prompt'].forEach(id => document.getElementById(id).style.display = '');
+  document.getElementById('prompt-status').textContent = `Proyecto: ${p.name} · ${p.client} · Generado: ${result.date}`;
+  toast('Prompt listo. ¡Copialo y pegalo en tu LLM preferido!');
+}
+
+function copyPrompt() {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(promptRawText)
+      .then(() => toast('Prompt copiado al portapapeles.'))
+      .catch(() => fallbackCopy());
+  } else {
+    fallbackCopy();
+  }
+}
+
+function fallbackCopy() {
+  const ta = document.getElementById('prompt-output');
+  ta.select();
+  document.execCommand('copy');
+  toast('Prompt copiado.');
+}
+
+async function savePromptTxt() {
+  const p = projects.find(x => x.id === activeProject);
+  if (!p) return;
+  const path = await pywebview.api.export_file(p.id, promptRawText, 'txt');
+  toast(path.startsWith('ERROR') ? path : 'Guardado: ' + path);
+}
+
+// ── banco ─────────────────────────────────────────────────────────────────────
+function renderBank() {
+  const searchTerm = (document.getElementById('bank-search')?.value || '').toLowerCase();
+  let qs = bankFilter==='todas' ? questions : questions.filter(q=>q.cat===bankFilter);
+  if (searchTerm) {
+    qs = qs.filter(q=>q.text.toLowerCase().includes(searchTerm));
+  }
+  document.getElementById('bank-list').innerHTML = qs.map(q=>`
+    <div class="q-block">
+      <div class="q-header">
+        <p class="q-text">${q.text}</p>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          <span class="badge badge-${q.cat.replace(' ','-')}">${q.cat}</span>
+          <span style="font-size:11px;color:var(--text3)">${q.base?'Base':'Variable'}</span>
+          ${!q.base?`<button class="danger" style="font-size:11px;padding:2px 8px" onclick="deleteQ(${q.id})">Borrar</button>`:''}
+        </div>
+      </div>
+      <p class="q-meta">${q.type}</p>
+    </div>`).join('') || '<p style="color:var(--text3);font-size:13px">Sin preguntas.</p>';
+}
+
+function filterBank(btn, cat) {
+  bankFilter=cat;
+  document.querySelectorAll('#bank-tabs .tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBank();
+}
+
+function showAddQ() {
+  const form = document.getElementById('add-q-form');
+  form.style.display='';
+  form.innerHTML=`
+    <p style="font-size:14px;font-weight:600;margin-bottom:12px">Nueva pregunta variable</p>
+    <div class="field"><label>Texto de la pregunta</label><textarea id="nq-text" placeholder="¿...?"></textarea></div>
+    <div class="grid2">
+      <div class="field"><label>Categoría</label><select id="nq-cat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <div class="field"><label>Tipo de respuesta</label><select id="nq-type"><option>Abierta</option><option>Cerrada</option><option>Selección múltiple</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="primary" onclick="saveQ()">Guardar</button>
+      <button onclick="document.getElementById('add-q-form').style.display='none'">Cancelar</button>
+    </div>`;
+}
+
+async function saveQ() {
+  const text = document.getElementById('nq-text').value.trim();
+  if (!text) { toast('Escribí el texto de la pregunta.'); return; }
+  const raw = await pywebview.api.create_question(document.getElementById('nq-cat').value, text, document.getElementById('nq-type').value);
+  questions.push(JSON.parse(raw));
+  document.getElementById('add-q-form').style.display='none';
+  renderBank();
+  toast('Pregunta guardada.');
+}
+
+async function deleteQ(id) {
+  if (!confirm('¿Eliminar esta pregunta?')) return;
+  await pywebview.api.delete_question(id);
+  questions = questions.filter(q=>q.id!==id);
+  projects.forEach(p=>{ if(p.extraQids) p.extraQids=p.extraQids.filter(x=>x!==id); });
+  renderBank();
+  toast('Pregunta eliminada.');
+}
+
+async function importQuestions(input) {
+  const file = input.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const raw = await pywebview.api.import_questions(text);
+    const result = JSON.parse(raw);
+    if (result.error) {
+      toast('Error: ' + result.error);
+    } else {
+      result.questions.forEach(q => questions.push(q));
+      renderBank();
+      toast(`${result.count} pregunta(s) importada(s) correctamente.`);
+    }
+  } catch(e) {
+    toast('Error al leer el archivo.');
+  }
+  input.value = '';
+}
+</script>
+</body>
+</html>
