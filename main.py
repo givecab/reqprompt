@@ -17,7 +17,7 @@ def main():
         resizable=True,
     )
     api.window = window
-    webview.start(debug=False, icon=str(assets_dir / "icono.png"))
+    webview.start(debug=False)
 
 if __name__ == "__main__":
     main()

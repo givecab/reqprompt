@@ -56,6 +56,22 @@ class API:
             conn.execute("DELETE FROM projects WHERE id=?", (project_id,))
         return True
 
+    def update_project(self, project_id: int, name: str, client: str, proj_type: str, notes: str):
+        with get_conn() as conn:
+            conn.execute(
+                "UPDATE projects SET name=?, client=?, type=?, notes=? WHERE id=?",
+                (name.strip(), client.strip(), proj_type, notes.strip(), project_id),
+            )
+        return json.dumps(
+            {
+                "id": project_id,
+                "name": name.strip(),
+                "client": client.strip(),
+                "type": proj_type,
+                "notes": notes.strip(),
+            }
+        )
+
     def set_extra_questions(self, project_id: int, question_ids_json: str):
         qids = json.loads(question_ids_json)
         with get_conn() as conn:
@@ -105,6 +121,23 @@ class API:
         with get_conn() as conn:
             conn.execute("DELETE FROM questions WHERE id=? AND is_base=0", (question_id,))
         return True
+
+    def update_question(self, question_id: int, category: str, text: str, q_type: str):
+        with get_conn() as conn:
+            conn.execute(
+                "UPDATE questions SET category=?, text=?, q_type=? WHERE id=?",
+                (category, text.strip(), q_type, question_id),
+            )
+            row = conn.execute("SELECT is_base FROM questions WHERE id=?", (question_id,)).fetchone()
+        return json.dumps(
+            {
+                "id": question_id,
+                "cat": category,
+                "text": text.strip(),
+                "type": q_type,
+                "base": bool(row["is_base"]) if row else False,
+            }
+        )
 
     def import_questions(self, questions_json: str):
         """Importa preguntas variables desde un array JSON."""

@@ -9,9 +9,9 @@
   :root {
     --bg:#f7f7f5;--surface:#fefbf5;--border:rgba(0,0,0,0.1);--border-md:rgba(0,0,0,0.18);
     --text:#1a1a18;--text2:#5a5a57;--text3:#9a9a96;
-    --brand:#0fd3ff;--brand-weak:#E8EEF8;--accent:#0fd3ff;
+    --brand:#00a2e2;--brand-weak:#e6f6fc;--accent:#00a2e2;
     --green:#1D9E75;--green-bg:#E1F5EE;
-    --blue-bg:#E6F1FB;--blue-text:#0C447C;
+    --blue-bg:#e6f6fc;--blue-text:#0077a8;
     --purple-bg:#EEEDFE;--purple-text:#3C3489;
     --amber-bg:#FAEEDA;--amber-text:#633806;
     --teal-bg:#E1F5EE;--teal-text:#085041;
@@ -22,8 +22,8 @@
     :root{
       --bg:#1a1a18;--surface:#242422;--border:rgba(255,255,255,0.1);--border-md:rgba(255,255,255,0.18);
       --text:#f0f0ec;--text2:#a0a09c;--text3:#606060;
-      --brand:#8FB2E7;--brand-weak:#223754;--accent:#8FB2E7;
-      --green-bg:#04342C;--blue-bg:#042C53;--blue-text:#B5D4F4;
+      --brand:#00a2e2;--brand-weak:#0d3342;--accent:#00a2e2;
+      --green-bg:#04342C;--blue-bg:#0d3342;--blue-text:#7dd7fb;
       --purple-bg:#26215C;--purple-text:#CECBF6;--amber-bg:#412402;--amber-text:#FAC775;
       --teal-bg:#04342C;--teal-text:#9FE1CB;--coral-bg:#4A1B0C;--coral-text:#F5C4B3;
     }
@@ -57,7 +57,7 @@
   button.green:hover{opacity:.85}
   button:disabled{opacity:.4;cursor:not-allowed}
   input,select,textarea{font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);border:0.5px solid var(--border-md);border-radius:var(--radius);padding:7px 10px;width:100%;outline:none;transition:border-color .13s}
-  input:focus,select:focus,textarea:focus{border-color:var(--text)}
+  input:focus,select:focus,textarea:focus{border-color:var(--brand)}
   textarea{resize:vertical;min-height:72px;line-height:1.5}
   label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
   .card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:12px}
@@ -94,7 +94,7 @@
   .page.active{display:block}
   .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
   .topbar h1{font-size:20px;font-weight:600}
-  .info-box{background:var(--blue-bg);border:0.5px solid rgba(55,138,221,.25);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px}
+  .info-box{background:var(--blue-bg);border:0.5px solid color-mix(in srgb, var(--brand) 35%, transparent);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px}
   .info-box p{font-size:13px;color:var(--blue-text);margin-bottom:6px;line-height:1.6}
   .info-box strong{font-weight:600}
   .info-box ol{padding-left:18px;margin-top:6px}
@@ -110,7 +110,7 @@
       <img src="icono.png" alt="ReqPrompt logo">
       <div>
         <div class="brand-name">
-          <h1 style="color: #000">Req</h1><h1>Prompt</h1>
+          <h1 style="color: var(--brand)">Req</h1><h1 style="color: #000">Prompt</h1>
         </div>
       </div>
     </div>
@@ -240,6 +240,7 @@ let activeProject = null;
 let bankFilter = 'todas';
 let promptRawText = '';
 let intCat = 'todas';
+let interviewSearch = '';
 let appBootstrapped = false;
 
 // ── init ─────────────────────────────────────────────────────────────────────
@@ -361,6 +362,7 @@ function renderProjectDetail() {
       ${p.doc_date ? `<p style="font-size:12px;color:var(--green);margin-bottom:10px">Prompt generado: ${p.doc_date}</p>` : ''}
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="primary" onclick="navBtn('entrevista')">Ir a entrevista</button>
+        <button onclick="editProjectForm(${p.id})">Editar proyecto</button>
         <button onclick="showExtraQ(${p.id})">+ Preguntas extra</button>
         <button onclick="navBtn('prompt')">Generar Prompt</button>
       </div>
@@ -390,6 +392,25 @@ function newProjectForm() {
     </div>`;
 }
 
+function editProjectForm(pid) {
+  const p = projects.find(x=>x.id===pid);
+  if (!p) return;
+  document.getElementById('proj-detail-col').innerHTML = `
+    <div class="card">
+      <p style="font-size:15px;font-weight:600;margin-bottom:14px">Editar proyecto</p>
+      <div class="field"><label>Nombre del proyecto</label><input id="ep-name" value="${escapeHtml(p.name)}" placeholder="Ej: Sistema de inventario ABC"></div>
+      <div class="grid2">
+        <div class="field"><label>Cliente / Empresa</label><input id="ep-client" value="${escapeHtml(p.client)}" placeholder="Nombre del cliente"></div>
+        <div class="field"><label>Tipo de proyecto</label><select id="ep-type">${PROJECT_TYPES.map(t=>`<option ${p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label>Notas iniciales (opcional)</label><textarea id="ep-notes" placeholder="Contexto previo...">${escapeHtml(p.notes||'')}</textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="primary" onclick="updateProject(${pid})">Guardar cambios</button>
+        <button onclick="renderProjectDetail()">Cancelar</button>
+      </div>
+    </div>`;
+}
+
 async function saveProject() {
   const name = document.getElementById('np-name').value.trim();
   const client = document.getElementById('np-client').value.trim();
@@ -401,6 +422,29 @@ async function saveProject() {
   updatePill();
   renderProjects();
   toast('Proyecto creado.');
+}
+
+async function updateProject(pid) {
+  const p = projects.find(x=>x.id===pid);
+  if (!p) return;
+  const name = document.getElementById('ep-name').value.trim();
+  const client = document.getElementById('ep-client').value.trim();
+  if (!name||!client) { toast('Completá nombre y cliente.'); return; }
+  const raw = await pywebview.api.update_project(
+    pid,
+    name,
+    client,
+    document.getElementById('ep-type').value,
+    document.getElementById('ep-notes').value.trim()
+  );
+  const updated = JSON.parse(raw);
+  p.name = updated.name;
+  p.client = updated.client;
+  p.type = updated.type;
+  p.notes = updated.notes;
+  updatePill();
+  renderProjects();
+  toast('Proyecto actualizado.');
 }
 
 async function deleteProject(id) {
@@ -415,13 +459,15 @@ async function deleteProject(id) {
 
 function showExtraQ(pid) {
   const p = projects.find(x=>x.id===pid);
+  if (!p) return;
   const extras = questions.filter(q=>!q.base);
   const searchTerm = (document.getElementById('extra-search')?.value || '').toLowerCase();
+  const selectedExtras = _pendingExtras[pid] || new Set(p.extraQids || []);
   let filtered = extras;
   if (searchTerm) {
     filtered = extras.filter(q=>q.text.toLowerCase().includes(searchTerm));
   }
-  const allSelected = filtered.length > 0 && filtered.every(q=>(p.extraQids||[]).includes(q.id));
+  const allSelected = filtered.length > 0 && filtered.every(q=>selectedExtras.has(q.id));
   let content = `
     <div class="card">
       <p style="font-size:15px;font-weight:600;margin-bottom:4px">Preguntas adicionales</p>
@@ -433,7 +479,7 @@ function showExtraQ(pid) {
       <button style="margin-bottom:12px;font-size:12px;padding:4px 8px" onclick="selectAllExtra(${pid},${!allSelected})">☑ ${allSelected?'Deseleccionar todo':'Seleccionar todo'}</button>
       ${filtered.map(q=>`
         <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;cursor:pointer;font-size:13px;color:var(--text)">
-          <input type="checkbox" ${(p.extraQids||[]).includes(q.id)?'checked':''} onchange="toggleExtra(${pid},${q.id},this.checked)" style="width:auto;margin-top:2px;flex-shrink:0">
+          <input type="checkbox" ${selectedExtras.has(q.id)?'checked':''} onchange="toggleExtra(${pid},${q.id},this.checked)" style="width:auto;margin-top:2px;flex-shrink:0">
           <span>${q.text} <span class="badge badge-${q.cat.replace(' ','-')}">${q.cat}</span></span>
         </label>`).join('')}`;
   } else {
@@ -493,7 +539,11 @@ function renderInterview() {
   const qs = questions.filter(q=>q.base||(p.extraQids||[]).includes(q.id));
   const answered = qs.filter(q=>(p.answers||{})[q.id]?.trim()).length;
   const pct = qs.length ? Math.round(answered/qs.length*100) : 0;
-  const filtered = intCat==='todas' ? qs : qs.filter(q=>q.cat===intCat);
+  const byCat = intCat==='todas' ? qs : qs.filter(q=>q.cat===intCat);
+  const searchTerm = interviewSearch.trim().toLowerCase();
+  const filtered = searchTerm
+    ? byCat.filter(q => q.text.toLowerCase().includes(searchTerm) || ((p.answers||{})[q.id]||'').toLowerCase().includes(searchTerm))
+    : byCat;
   const catBtns = ['todas',...CATS].map(c=>`<button class="tab ${intCat===c?'active':''}" onclick="setIntCat('${c}')">${c==='todas'?'Todas':c}</button>`).join('');
   body.innerHTML = `
     <div class="progress-wrap">
@@ -501,6 +551,9 @@ function renderInterview() {
       <div class="progress-bar"><div class="progress-fill" id="int-progress" style="width:${pct}%"></div></div>
     </div>
     <div class="tab-row">${catBtns}</div>
+    <div style="margin-bottom:12px">
+      <input id="interview-search" type="text" placeholder="🔍 Buscar pregunta o respuesta..." value="${escapeHtml(interviewSearch)}" oninput="setInterviewSearch(this)">
+    </div>
     <div id="q-list">
       ${filtered.map(q=>{
         const ans = (p.answers||{})[q.id]||'';
@@ -510,11 +563,25 @@ function renderInterview() {
           <textarea placeholder="Anotá la respuesta del cliente..." onchange="saveAnswer(${p.id},${q.id},this.value)">${ans}</textarea>
         </div>`;
       }).join('')}
-      ${!filtered.length?'<p style="color:var(--text3);font-size:13px">Sin preguntas en esta categoría.</p>':''}
+      ${!filtered.length?`<p style="color:var(--text3);font-size:13px">${searchTerm?'No hay preguntas que coincidan con la búsqueda.':'Sin preguntas en esta categoría.'}</p>`:''}
     </div>`;
 }
 
 function setIntCat(cat) { intCat=cat; renderInterview(); }
+function setInterviewSearch(input) {
+  interviewSearch = input.value;
+  const start = input.selectionStart ?? interviewSearch.length;
+  const end = input.selectionEnd ?? interviewSearch.length;
+  renderInterview();
+  restoreInterviewSearchFocus(start, end);
+}
+
+function restoreInterviewSearchFocus(start, end) {
+  const input = document.getElementById('interview-search');
+  if (!input) return;
+  input.focus();
+  input.setSelectionRange(start, end);
+}
 
 async function saveAnswer(pid, qid, val) {
   const p = projects.find(x=>x.id===pid);
@@ -622,6 +689,7 @@ function renderBank() {
         <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
           <span class="badge badge-${q.cat.replace(' ','-')}">${q.cat}</span>
           <span style="font-size:11px;color:var(--text3)">${q.base?'Base':'Variable'}</span>
+          <button style="font-size:11px;padding:2px 8px" onclick="editQForm(${q.id})">Editar</button>
           ${!q.base?`<button class="danger" style="font-size:11px;padding:2px 8px" onclick="deleteQ(${q.id})">Borrar</button>`:''}
         </div>
       </div>
@@ -652,6 +720,24 @@ function showAddQ() {
     </div>`;
 }
 
+function editQForm(id) {
+  const q = questions.find(x=>x.id===id);
+  if (!q) return;
+  const form = document.getElementById('add-q-form');
+  form.style.display='';
+  form.innerHTML=`
+    <p style="font-size:14px;font-weight:600;margin-bottom:12px">Editar pregunta</p>
+    <div class="field"><label>Texto de la pregunta</label><textarea id="eq-text" placeholder="¿...?">${escapeHtml(q.text)}</textarea></div>
+    <div class="grid2">
+      <div class="field"><label>Categoría</label><select id="eq-cat">${CATS.map(c=>`<option ${q.cat===c?'selected':''}>${c}</option>`).join('')}</select></div>
+      <div class="field"><label>Tipo de respuesta</label><select id="eq-type">${['Abierta','Cerrada','Selección múltiple'].map(t=>`<option ${q.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="primary" onclick="updateQ(${id})">Guardar cambios</button>
+      <button onclick="document.getElementById('add-q-form').style.display='none'">Cancelar</button>
+    </div>`;
+}
+
 async function saveQ() {
   const text = document.getElementById('nq-text').value.trim();
   if (!text) { toast('Escribí el texto de la pregunta.'); return; }
@@ -660,6 +746,27 @@ async function saveQ() {
   document.getElementById('add-q-form').style.display='none';
   renderBank();
   toast('Pregunta guardada.');
+}
+
+async function updateQ(id) {
+  const q = questions.find(x=>x.id===id);
+  if (!q) return;
+  const text = document.getElementById('eq-text').value.trim();
+  if (!text) { toast('Escribí el texto de la pregunta.'); return; }
+  const raw = await pywebview.api.update_question(
+    id,
+    document.getElementById('eq-cat').value,
+    text,
+    document.getElementById('eq-type').value
+  );
+  const updated = JSON.parse(raw);
+  q.text = updated.text;
+  q.cat = updated.cat;
+  q.type = updated.type;
+  document.getElementById('add-q-form').style.display='none';
+  renderBank();
+  if (activeProject) renderProjectDetail();
+  toast('Pregunta actualizada.');
 }
 
 async function deleteQ(id) {
@@ -689,6 +796,14 @@ async function importQuestions(input) {
     toast('Error al leer el archivo.');
   }
   input.value = '';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 }
 </script>
 </body>
