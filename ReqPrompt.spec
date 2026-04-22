@@ -1,9 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 from pathlib import Path
+import sys
 
 ROOT_DIR = Path(SPECPATH)
 MACOS_ICON = ROOT_DIR / 'build' / 'ReqPrompt.icns'
+WINDOWS_ICON = ROOT_DIR / 'assets' / 'icono.ico'
 
 a = Analysis(
     ['main.py'],
@@ -26,6 +28,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='ReqPrompt',
+    icon=str(WINDOWS_ICON) if sys.platform == 'win32' and WINDOWS_ICON.exists() else None,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

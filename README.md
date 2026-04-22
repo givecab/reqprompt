@@ -12,7 +12,13 @@ La compilacion oficial ahora queda centralizada en un unico script:
 bash build.sh
 ```
 
-Ese script prepara el entorno, instala `PyInstaller`, limpia artefactos previos y genera la app de escritorio automaticamente.
+En Windows:
+
+```bat
+build.bat
+```
+
+Los scripts de build preparan el entorno, instalan `PyInstaller`, limpian artefactos previos y generan la app de escritorio automaticamente.
 
 ## Funcionalidades
 
@@ -44,6 +50,7 @@ req_app/
 ├── build.sh
 ├── setup.bat
 ├── run.bat
+├── build.bat
 └── ReqPrompt.spec
 ```
 
@@ -78,10 +85,16 @@ run.bat
 bash build.sh
 ```
 
-El script realiza estos pasos:
+### Windows
 
-1. Verifica que `python3` exista.
-2. Crea `venv/` si todavia no existe ejecutando `setup.sh`.
+```bat
+build.bat
+```
+
+Los scripts realizan estos pasos:
+
+1. Verifican que Python exista.
+2. Crean `venv/` si todavia no existe ejecutando `setup.sh` o `setup.bat`.
 3. Activa el entorno virtual.
 4. Instala o actualiza `PyInstaller`.
 5. Elimina `build/` y `dist/`.
@@ -92,6 +105,7 @@ El script realiza estos pasos:
 
 - macOS: `dist/ReqPrompt.app`
 - Linux: `dist/ReqPrompt/`
+- Windows: `dist/ReqPrompt/` o `dist/ReqPrompt.exe` segun el resultado del build de PyInstaller
 
 ## Importar preguntas
 
@@ -129,4 +143,4 @@ Tipos validos:
 
 - La app trabaja sin base de datos remota.
 - El prompt final se genera a partir de los datos cargados en cada proyecto.
-- `build/` y `dist/` son artefactos generados y pueden recrearse con `bash build.sh`.
+- `build/` y `dist/` son artefactos generados y pueden recrearse con `bash build.sh` o `build.bat`.
